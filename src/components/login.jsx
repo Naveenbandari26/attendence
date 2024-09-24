@@ -31,6 +31,8 @@ const navigate=useNavigate();
       const data = response.data;
 
       if (response.status === 200) {
+        localStorage.setItem("user_id", data.user.user_id);
+        localStorage.setItem("batch_id", data.user.batch_id);
           setSuccessMessage("Login successful!");
           navigate("/classes");
           console.log("Login successful!");
