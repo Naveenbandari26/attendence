@@ -2,16 +2,20 @@ import React, { useState, useEffect, useRef } from "react";
 import Navbar from "./navbar";
 import { useParams } from "react-router-dom";
 import QRCode from "qrcode";
+import axios from "axios";
 
 const Attendance = () => {
   let { className } = useParams();
   className = className.toLocaleUpperCase();
+  const [token, setToken] = useState("");
   const [timer, setTimer] = useState(5);
   const [isQrVisible, setIsQrVisible] = useState(false);
   const [isQrHidden, setIsQrHidden] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
   const qrCanvasRef = useRef(null);
 
+  const user_id=localStorage.getItem("user_id");
+  const batch_id=localStorage.getItem("batch_id");
   useEffect(() => {
     let countdown;
 
@@ -42,17 +46,40 @@ const Attendance = () => {
     };
   }, [isQrVisible]);
 
+  const fetchToken = async () => {
+    try {
+      const response = await axios.post("https://tata-virid.vercel.app/generate", {
+        user_id: user_id, // Use appropriate user_id
+        batch_id: batch_id, // Use appropriate batch_id
+      });
+  
+      if (response.data && response.data.record) {
+        setToken(response.data.record.token); // Store the token in state
+      } else {
+        console.error("Token not found in response:", response);
+      }
+    } catch (error) {
+      console.error("Error fetching token:", error);
+    }
+  };
+  
+
   const generateQrCode = () => {
     const timestamp = new Date().getTime(); 
     const qrValue = `Attendance marked at ${timestamp}`; 
     const canvas = qrCanvasRef.current;
+    if (!token) {
+      console.warn("Token is not available yet!");
+      return;
+    }
 
-    QRCode.toCanvas(canvas, qrValue, { width: 256 }, (error) => {
+    QRCode.toCanvas(canvas, token, { width: 256 }, (error) => {
       if (error) console.error(error);
     });
   };
 
-  const handleMarkAttendance = () => {
+  const handleMarkAttendance = async() => {
+    await fetchToken();
     setIsQrVisible(true); 
     setTimer(5); 
     setIsRegenerating(false); 
