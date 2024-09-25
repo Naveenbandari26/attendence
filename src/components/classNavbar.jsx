@@ -1,14 +1,10 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-const Navbar = ({ title }) => {
+const ClassNavbar = ({ title }) => {
   const navigate = useNavigate();
 
   const handleClick = async () => {
-    
-    localStorage.removeItem("user_id");
-    localStorage.removeItem("batch_id");
-    localStorage.removeItem("token");
 
     navigate(-1);
   };
@@ -19,11 +15,11 @@ const Navbar = ({ title }) => {
         onClick={handleClick} 
         className="bg-gray-600 px-3 py-1 rounded-md hover:bg-gray-700 mr-4"
       >
-        Logout
+        back
       </button>
       <h1 className="text-2xl text-gray-800 font-semibold">{title}</h1>
     </nav>
   );
 };
 
-export default Navbar;
+export default ClassNavbar;
