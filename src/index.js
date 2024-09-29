@@ -5,8 +5,9 @@ import reportWebVitals from './reportWebVitals';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 import Login from './components/login';
-import Classes from './components/classes';
+// import Classes from './components/classes';
 import Attendance from './components/attendance';
+import Dashboard from './components/dashboard';
 
 
 const r=createBrowserRouter([
@@ -15,11 +16,15 @@ const r=createBrowserRouter([
     element: <Login/>,
   },
   {
-    path: "/classes",
-    element: <Classes/>
+    path:"/login",
+    element:<Login/>
   },
   {
-    path:'/attendance/:className',
+    path: "/dashboard",
+    element: <Dashboard/>
+  },
+  {
+    path:'/attendance/',
     element:<Attendance/>
   },
 ])

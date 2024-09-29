@@ -10,7 +10,7 @@ const Navbar = ({ title }) => {
     localStorage.removeItem("batch_id");
     localStorage.removeItem("token");
 
-    navigate(-1);
+    navigate("/");
   };
 
   return (

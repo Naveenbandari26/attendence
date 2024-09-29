@@ -1,22 +1,21 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
 import QRCode from "qrcode";
 import axios from "axios";
-import ClassNavbar from "./classNavbar";
+import { useNavigate } from "react-router-dom"; // Import useNavigate hook
+import Navbar from "./navbar";
 
 const Attendance = () => {
-  let { className } = useParams();
-  className = className.toLocaleUpperCase();
   const [token, setToken] = useState("");
-  const [timer, setTimer] = useState(5);
+  const [timer, setTimer] = useState(15);
   const [isQrVisible, setIsQrVisible] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
   const qrCanvasRef = useRef(null);
 
+  const navigate = useNavigate(); // Initialize useNavigate
+
   const user_id = localStorage.getItem("user_id");
   const batch_id = localStorage.getItem("batch_id");
 
-//this function fetch the tokens from the /generate api
   const fetchToken = async () => {
     try {
       const response = await axios.post("https://tata-virid.vercel.app/generate", {
@@ -26,9 +25,8 @@ const Attendance = () => {
 
       if (response.data && response.data.record) {
         const newToken = response.data.record.token;
-        setToken(newToken); //assigning the token value to token variable
-        localStorage.setItem("token", token); // making the token to get stored in the local Storage.
-        
+        setToken(newToken); 
+        localStorage.setItem("token", newToken); 
         return newToken;
       } else {
         console.error("Token not found in response:", response);
@@ -39,7 +37,6 @@ const Attendance = () => {
     return null;
   };
 
-  // this function generates the Qr with the token attached to it.
   const generateQrCode = (tokenToUse) => {
     const canvas = qrCanvasRef.current;
     if (!tokenToUse) {
@@ -52,12 +49,8 @@ const Attendance = () => {
     });
   };
 
-  // this makes the refreshment of the token along with qr.
   const refreshQrCode = async () => {
-    // this removes the old token.
     localStorage.removeItem("token");
-
-    // generating the new qr and token
     const newToken = await fetchToken();
     if (newToken) {
       generateQrCode(newToken);
@@ -67,21 +60,20 @@ const Attendance = () => {
   useEffect(() => {
     let countdown;
     if (isQrVisible) {
-      refreshQrCode(); //1st qr appearence.
+      refreshQrCode(); 
 
       countdown = setInterval(() => {
         setTimer((prev) => {
           if (prev === 1) {
             setIsRegenerating(true);
 
-            // thsi helps to regenerate the qr every 5 sec.
             setTimeout(async () => {
-              await refreshQrCode(); //this fetched the new token value for the qr
+              await refreshQrCode(); 
               setIsRegenerating(false);
-              setTimer(5); // making sure the timer will be 5 sec.
-            }, 1000); // time between the old and new qr
+              setTimer(15); 
+            }, 1000);
 
-            return 5; // Reset countdown to 5 seconds after regeneration
+            return 15;
           }
           return prev - 1;
         });
@@ -89,45 +81,56 @@ const Attendance = () => {
     }
 
     return () => {
-      clearInterval(countdown); // Clear the interval on component unmount
+      clearInterval(countdown); 
     };
   }, [isQrVisible]);
 
   const handleToggleAttendance = async () => {
-    setIsQrVisible((prev) => !prev); // Toggle visibility of the QR code
+    setIsQrVisible((prev) => !prev); 
     if (!isQrVisible) {
-      setTimer(5); // Start the countdown if QR code is shown
+      setTimer(15); 
     }
+  };
+
+  const goToDashboard = () => {
+    navigate("/dashboard"); // Navigate to the dashboard page
   };
 
   return (
     <>
-      <ClassNavbar title={`Attendance for ${className}`}/>
-      <div className="p-8 flex flex-col justify-center items-center">
-        {/* {this following button make sure to act as the switch to start and stop the qr marking} */}
+      <Navbar title={"Attendance"} />
+      <button
+          onClick={goToDashboard}
+          className="mt-4 bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-700"
+        >
+          Go to Dashboard
+        </button>
+      <div className="p-10 flex flex-col justify-center items-center">
         <button
           onClick={handleToggleAttendance}
-          className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
+          className="bg-blue-1000 text-gray-200 py-2 px-4 rounded-md bg-blue-600"
         >
           {isQrVisible ? "Stop Attendance" : "Mark Attendance"}
         </button>
 
         {isQrVisible && (
-          <div className="mt-8">
+          <div className="mt-10">
             <div>
               <canvas ref={qrCanvasRef} />
             </div>
             {isRegenerating && (
-              <p className="mt-4 text-lg text-red-500">Regenerating QR...</p>
+              <p className="mt-4 text-lg text-red-1000">Regenerating QR...</p>
             )}
             {!isRegenerating && (
-              // this make sure to make a sentence that helps to user to get the idea that qr is refreshed for every 5 sec.
-              <p className="mt-4 text-lg text-red-500">
+              <p className="mt-4 text-lg text-red-1000">
                 QR code will refresh in {timer} seconds  
               </p>
             )}
           </div>
         )}
+
+        {/* Button to navigate to Dashboard */}
+        
       </div>
     </>
   );

@@ -26,15 +26,13 @@ const navigate=useNavigate();
         },
       });
 
-      // console.log("API Response:", response);
-
       const data = response.data;
 
       if (response.status === 200) {
         localStorage.setItem("user_id", data.user.user_id);
         localStorage.setItem("batch_id", data.user.batch_id);
           setSuccessMessage("Login successful!");
-          navigate("/classes");
+          navigate("/attendance");
           console.log("Login successful!");
       } else {
         setError(data.message || "Login failed. Please try again.");
@@ -53,10 +51,10 @@ const navigate=useNavigate();
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-[#D6E6F2]">
+    <div className="flex flex-col items-center  justify-center min-h-screen  bg-[#D6E6F2]">
       <img src={Logo} alt="" className="w-[250px]" />
       <br />
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+      <div className="bg-white p-4 rounded-lg shadow-md w-[80%] max-w-md">
         <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
         {successMessage && (
