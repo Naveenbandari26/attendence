@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import axios from "axios";
-import {useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Logo from '../ace_logo.png';
+
+// MUI Components
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 
 const Login = () => {
   const [user_id, setuser_id] = useState("");
@@ -9,7 +13,10 @@ const Login = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
-const navigate=useNavigate();
+  const [openSnackbar, setOpenSnackbar] = useState(false); // To control the Snackbar
+
+  const navigate = useNavigate();
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -29,18 +36,19 @@ const navigate=useNavigate();
       const data = response.data;
 
       if (response.status === 200) {
-        localStorage.setItem("user_id", data.user.user_id);
-        localStorage.setItem("batch_id", data.user.batch_id);
-          setSuccessMessage("Login successful!");
-          navigate("/attendance");
-          console.log("Login successful!");
+        localStorage.setItem("user_id", data.user.userId);
+        localStorage.setItem("batch_id", data.user.batchIds);
+        setSuccessMessage("Login successful!");
+        setOpenSnackbar(true); // Open success Snackbar
+        setTimeout(() => {
+          navigate("/attendance"); // Navigate to attendance after login
+        }, 2000); // Delay navigation to allow Snackbar to display
       } else {
         setError(data.message || "Login failed. Please try again.");
       }
     } catch (error) {
       console.error("Error during login:", error);
       if (error.response) {
-        console.log("Error Response:", error.response);
         setError(error.response.data?.message || "Login failed !");
       } else {
         setError("Unexpected Error!!");
@@ -50,16 +58,20 @@ const navigate=useNavigate();
     }
   };
 
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSnackbar(false);
+  };
+
   return (
-    <div className="flex flex-col items-center  justify-center min-h-screen  bg-[#D6E6F2]">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-[#D6E6F2]">
       <img src={Logo} alt="" className="w-[250px]" />
       <br />
       <div className="bg-white p-4 rounded-lg shadow-md w-[80%] max-w-md">
         <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-        {successMessage && (
-          <p className="text-green-500 text-center mb-4">{successMessage}</p>
-        )}
         <form onSubmit={handleLogin}>
           <div className="mb-4">
             <label className="block text-gray-700 mb-2">Username:</label>
@@ -94,6 +106,18 @@ const navigate=useNavigate();
           </button>
         </form>
       </div>
+
+      {/* MUI Snackbar and Alert */}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={2000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={handleSnackbarClose} severity="success" sx={{ width: '100%' }}>
+          {successMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
