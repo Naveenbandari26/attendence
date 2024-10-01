@@ -16,7 +16,7 @@ const navigate=useNavigate();
     setError("");
     setSuccessMessage("");
 
-    const API_URL = "https://tata-virid.vercel.app/auth/login";
+    const API_URL = "https://tata-alpha-azure.vercel.app/auth/login";
     const loginData = { user_id, password };
 
     try {
